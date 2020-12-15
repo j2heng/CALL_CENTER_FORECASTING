@@ -143,3 +143,6 @@ result/**
 *.csv
 *.txt
 *.pkl
+
+# vscode
+.vscode/
