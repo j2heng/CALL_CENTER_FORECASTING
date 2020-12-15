@@ -116,7 +116,8 @@ class BaseFeatureBuilding(object):
             ((self.df.DATE >= '2017-10-21') & (self.df.DATE < '2017-11-06')) + \
             ((self.df.DATE >= '2018-10-20') & (self.df.DATE < '2018-11-05')) + \
             ((self.df.DATE >= '2019-10-19') & (self.df.DATE < '2019-11-04')) + \
-            ((self.df.DATE >= '2020-10-17') & (self.df.DATE < '2020-11-02'))  
+            ((self.df.DATE >= '2020-10-17') & (self.df.DATE < '2020-11-02')) + \
+            ((self.df.DATE >= '2021-10-16') & (self.df.DATE < '2021-10-31'))  
         vac_noel = ((self.df.DATE >= '2012-01-01') & (self.df.DATE < '2012-01-03')) + \
             ((self.df.DATE >= '2012-12-22') & (self.df.DATE < '2013-01-07')) + \
             ((self.df.DATE >= '2013-12-21') & (self.df.DATE < '2014-01-06')) + \
@@ -126,7 +127,8 @@ class BaseFeatureBuilding(object):
             ((self.df.DATE >= '2017-12-23') & (self.df.DATE < '2018-01-08')) + \
             ((self.df.DATE >= '2018-12-22') & (self.df.DATE < '2019-01-07')) + \
             ((self.df.DATE >= '2019-12-21') & (self.df.DATE < '2020-01-06')) + \
-            ((self.df.DATE >= '2020-12-19') & (self.df.DATE < '2021-01-04'))
+            ((self.df.DATE >= '2020-12-19') & (self.df.DATE < '2021-01-04')) + \
+            ((self.df.DATE >= '2021-12-18') & (self.df.DATE < '2022-01-02')) 
         vac_hiver = ((self.df.DATE >= '2012-02-11') & (self.df.DATE < '2012-03-12')) + \
             ((self.df.DATE >= '2013-02-16') & (self.df.DATE < '2013-03-18')) + \
             ((self.df.DATE >= '2014-02-15') & (self.df.DATE < '2014-03-17')) + \
@@ -136,7 +138,8 @@ class BaseFeatureBuilding(object):
             ((self.df.DATE >= '2018-02-10') & (self.df.DATE < '2018-03-12')) + \
             ((self.df.DATE >= '2019-02-08') & (self.df.DATE < '2019-03-09')) + \
             ((self.df.DATE >= '2020-02-08') & (self.df.DATE < '2020-03-09')) + \
-            ((self.df.DATE >= '2021-02-06') & (self.df.DATE < '2021-03-08')) 
+            ((self.df.DATE >= '2021-02-06') & (self.df.DATE < '2021-03-08')) + \
+            ((self.df.DATE >= '2022-02-05') & (self.df.DATE < '2022-03-06')) 
         vac_printemps = ((self.df.DATE >= '2012-04-07') & (self.df.DATE < '2012-05-07')) + \
             ((self.df.DATE >= '2013-04-13') & (self.df.DATE < '2013-05-13')) + \
             ((self.df.DATE >= '2014-04-12') & (self.df.DATE < '2014-05-28')) + \
@@ -146,7 +149,8 @@ class BaseFeatureBuilding(object):
             ((self.df.DATE >= '2018-04-07') & (self.df.DATE < '2018-05-07')) + \
             ((self.df.DATE >= '2019-04-04') & (self.df.DATE < '2019-05-04')) + \
             ((self.df.DATE >= '2020-04-04') & (self.df.DATE < '2020-05-04')) + \
-            ((self.df.DATE >= '2021-04-10') & (self.df.DATE < '2021-05-10'))
+            ((self.df.DATE >= '2021-04-10') & (self.df.DATE < '2021-05-10')) + \
+            ((self.df.DATE >= '2022-04-02') & (self.df.DATE < '2022-05-01')) 
         vac_ete = ((self.df.DATE >= '2012-07-05') & (self.df.DATE < '2012-09-03')) + \
             ((self.df.DATE >= '2013-07-06') & (self.df.DATE < '2013-09-03')) + \
             ((self.df.DATE >= '2014-07-05') & (self.df.DATE < '2014-09-01')) + \
@@ -156,7 +160,8 @@ class BaseFeatureBuilding(object):
             ((self.df.DATE >= '2018-07-07') & (self.df.DATE < '2018-09-03')) + \
             ((self.df.DATE >= '2019-07-04') & (self.df.DATE < '2019-09-02')) + \
             ((self.df.DATE >= '2020-07-04') & (self.df.DATE < '2020-09-01')) + \
-            ((self.df.DATE >= '2021-07-06') & (self.df.DATE < '2021-09-01'))
+            ((self.df.DATE >= '2021-07-06') & (self.df.DATE < '2021-09-01')) + \
+            ((self.df.DATE >= '2022-07-02') & (self.df.DATE < '2022-09-01')) 
 
         self.df['HolidaysFR'] = (vac_toussaint + vac_noel + vac_hiver + vac_printemps + vac_ete).astype('int')
 
