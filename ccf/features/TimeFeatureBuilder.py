@@ -210,9 +210,7 @@ class DayFeatureBuilding(BaseFeatureBuilding):
     
     def addLags(self):
         """add lags"""
-    
-        # -------- Nb_appels_recus
-        def shifted_mois_appel(x):
+        def shifted_mois(x):
             if self.df['MONTH'].iloc[x] > 3:
                 shifted = self.df[(self.df['MONTH'] == self.df['MONTH'].iloc[x]-3) & \
                             (self.df['YEAR'] == self.df['YEAR'].iloc[x]) & \
@@ -223,27 +221,27 @@ class DayFeatureBuilding(BaseFeatureBuilding):
                             (self.df['YEAR'] == self.df['YEAR'].iloc[x]-1) & \
                             (self.df['WEEK_DAY'] == self.df['WEEK_DAY'].iloc[x]) & \
                             (self.df['JF'] == 0)  & (self.df['AftJF'] == 0)].index.values
-            return (self.df['Nb_appels_recus'].iloc[shifted].values)        
+            return (self.df['y'].iloc[shifted].values)        
         
-        self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'] = self.df.index.map(lambda x : shifted_mois_appel(x))
-        self.df['MEAN_LAGGED_APPEL'] = self.df.index.map(lambda x : np.nanmean(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x] ) if (len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x]) > 0)  else (self.df['Nb_appels_recus'].iloc[x] ))        
+        self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'] = self.df.index.map(lambda x : shifted_mois(x))
+        self.df['MEAN_LAGGED'] = self.df.index.map(lambda x : np.nanmean(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x] ) if (len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x]) > 0)  else (self.df['y'].iloc[x] ))        
         
-        self.df['LAGGED_1_APPEL'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x])-1] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x]) > 0 else self.df['MEAN_LAGGED_APPEL'].iloc[x])
-        self.df['LAGGED_2_APPEL'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x])-2] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x]) > 1 else self.df['MEAN_LAGGED_APPEL'].iloc[x])
-        self.df['LAGGED_3_APPEL'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x])-3] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x]) > 2 else self.df['MEAN_LAGGED_APPEL'].iloc[x])
-        self.df['LAGGED_4_APPEL'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x])-4] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x]) > 3 else self.df['MEAN_LAGGED_APPEL'].iloc[x])
-        self.df['STD_LAGGED_APPEL'] = self.df.index.map(lambda x : np.nanstd(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY_APPEL'].iloc[x] ))    
-        self.df['LAGGED_LY_DW_avg_APPEL'] = self.df.apply(lambda x: np.nanmean(self.df[(self.df['YEAR'] == x['YEAR']-1)  & (self.df['MONTH'] == x['MONTH']) & (self.df['WEEK_DAY'] == x['WEEK_DAY']) & (self.df['JF'] == 0)  & (self.df['AftJF'] == 0)]['Nb_appels_recus']) if (x['YEAR']>min(self.df.YEAR)) else x['Nb_appels_recus'] , axis=1)
+        self.df['LAGGED_1'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x])-1] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x]) > 0 else self.df['MEAN_LAGGED'].iloc[x])
+        self.df['LAGGED_2'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x])-2] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x]) > 1 else self.df['MEAN_LAGGED'].iloc[x])
+        self.df['LAGGED_3'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x])-3] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x]) > 2 else self.df['MEAN_LAGGED'].iloc[x])
+        self.df['LAGGED_4'] = self.df.index.map(lambda x : self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x][len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x])-4] if len(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x]) > 3 else self.df['MEAN_LAGGED'].iloc[x])
+        self.df['STD_LAGGED'] = self.df.index.map(lambda x : np.nanstd(self.df['LAGGED_3_MONTH_VALUES_WEEKDAY'].iloc[x] ))    
+        self.df['LAGGED_LY_DW_avg'] = self.df.apply(lambda x: np.nanmean(self.df[(self.df['YEAR'] == x['YEAR']-1)  & (self.df['MONTH'] == x['MONTH']) & (self.df['WEEK_DAY'] == x['WEEK_DAY']) & (self.df['JF'] == 0)  & (self.df['AftJF'] == 0)]['y']) if (x['YEAR']>min(self.df.YEAR)) else x['y'] , axis=1)
 
         # Same holiday of last years        
         holidays = FEHelper.lholidays()
         for h in set(holidays.holiday):
-            self.df.loc[self.df['holiday']==h, 'LAGGED_LY_DW_avg_APPEL'] = self.df.loc[self.df['holiday']==h].apply(lambda x : np.nanmean(self.df[(self.df['holiday']==h) & (self.df['YEAR'] < x['YEAR'])]['Nb_appels_recus'] if (x['YEAR']>min(self.df.YEAR)) else x['Nb_appels_recus']), axis=1)
+            self.df.loc[self.df['holiday']==h, 'LAGGED_LY_DW_avg'] = self.df.loc[self.df['holiday']==h].apply(lambda x : np.nanmean(self.df[(self.df['holiday']==h) & (self.df['YEAR'] < x['YEAR'])]['y'] if (x['YEAR']>min(self.df.YEAR)) else x['y']), axis=1)
 
         # Same after holiday of last years
         aftholidays = FEHelper.aftholidays()
         for h in set(aftholidays.aftholiday):
-            self.df.loc[self.df['aftholiday']==h, 'LAGGED_LY_DW_avg_APPEL'] = self.df.loc[self.df['aftholiday']==h].apply(lambda x : np.mean(self.df[(self.df['aftholiday']==h) & (self.df['YEAR'] < x['YEAR'])]['Nb_appels_recus'] if (x['YEAR']>min(self.df.YEAR)) else x['Nb_appels_recus']), axis=1)
+            self.df.loc[self.df['aftholiday']==h, 'LAGGED_LY_DW_avg'] = self.df.loc[self.df['aftholiday']==h].apply(lambda x : np.mean(self.df[(self.df['aftholiday']==h) & (self.df['YEAR'] < x['YEAR'])]['y'] if (x['YEAR']>min(self.df.YEAR)) else x['y']), axis=1)
             
         self.df = self.df.fillna(0)
  
@@ -262,8 +260,103 @@ class DayFeatureBuilding(BaseFeatureBuilding):
         self.df.ix[self.df['JF']==1,'BefJF']=0
         # jour ouvre
         idx_JF_special = self.df[(self.df.JF==1) &(self.df.WEEK_DAY==4) ].index.values
-        self.df['AftJF'].iloc[idx_JF_special+1]=0
-        self.df['AftJF'].iloc[idx_JF_special+3]=1
+        idx_max = max(self.df.index.values)
+        for tmp in idx_JF_special:
+            if tmp+1<=idx_max:
+                self.df['AftJF'].iloc[tmp+1]=0
+            if tmp+3<=idx_max:
+                self.df['AftJF'].iloc[tmp+3]=1
     
     def transform(self):
         return super(DayFeatureBuilding, self).transform()
+
+
+class HourFeatureBuilding(BaseFeatureBuilding):
+     
+    def __init__(self, df, ephemeride, start, end):
+        super(HourFeatureBuilding,self).__init__(df, ephemeride, start, end, 'H')
+        
+    def __getitem__(self, key):
+        return super(HourFeatureBuilding, self).__getitem__(key)    
+    
+    def fillna(self):
+        """Make date index continuous in self.df"""
+        super(HourFeatureBuilding, self).fillna()
+        
+   
+    def merge(self):
+        """Merge self.df with self.ephemeride"""
+        super(HourFeatureBuilding, self).merge()
+    
+    def addBasicTimeFeatures(self):
+        """add basic time features"""
+        super(HourFeatureBuilding, self).addBasicTimeFeatures()
+        self.df["HOUR"] = self.df['TIME'].apply(lambda x : x.hour) 
+        
+    def addPeriodicTimeFeatures(self):
+        """add sin/cos time features"""
+        super(HourFeatureBuilding, self).addPeriodicTimeFeatures()
+        self.df['xHOUR'] =  self.df['HOUR'].map(lambda x : np.sin(2*np.pi*x/24))
+        self.df['yHOUR'] =  self.df['HOUR'].map(lambda x : np.cos(2*np.pi*x/24))
+
+        
+    def addEphemerideFeatures(self):    
+        """add ephemeride related features"""
+        super(HourFeatureBuilding, self).addEphemerideFeatures()
+        self.df['LIGHT'] = self.df.index.map(lambda x : int(self.df['HALF_HOURL'].iloc[x]<=self.df['HOUR'].iloc[x]<=self.df['HALF_HOURC'].iloc[x]))
+    
+    def addTimeGroupFeatures(self):
+        """create time groups and dummy them"""
+        super(HourFeatureBuilding, self).addTimeGroupFeatures()
+        self.df['HOUR_GROUP'] = self.df['HOUR'].map(FEHelper.Hourgroup)
+        self.df = self.df.join(pd.get_dummies(self.df['HOUR_GROUP'], prefix='HG'))
+    
+    def addLags(self):
+        """add lags"""
+        if FEHelper.isContinuous(self.df.TIME, self.start, self.end, self.freq):
+            
+            self.df["LAGGED_1"]=self.df["y"].shift(168) #lag J-7 à la même heure
+            self.df["LAGGED_2"]=self.df["y"].shift(336) #lag J-14 à la même heure
+            self.df["LAGGED_3"]=self.df["y"].shift(504) #lag J-21 à la même heure
+            self.df["LAGGED_4"]=self.df["y"].shift(672) #lag J-28 à la même heure
+            
+            # Question: whether to handle nan values in lags
+            self.df["LAGGED_1"].fillna(self.df['y'], inplace=True)
+            self.df["LAGGED_2"].fillna(self.df['y'], inplace=True)
+            self.df["LAGGED_3"].fillna(self.df['y'], inplace=True)
+            self.df["LAGGED_4"].fillna(self.df['y'], inplace=True)
+            
+            self.df["MEAN_LAGGED"]=self.df.index.map(lambda x : np.mean([self.df["LAGGED_1"].iloc[x],self.df["LAGGED_2"].iloc[x],self.df["LAGGED_3"].iloc[x],self.df["LAGGED_4"].iloc[x]]))
+            self.df["STD_LAGGED"]=self.df.index.map(lambda x : np.std([self.df["LAGGED_1"].iloc[x],self.df["LAGGED_2"].iloc[x],self.df["LAGGED_3"].iloc[x],self.df["LAGGED_4"].iloc[x]]))
+            
+            # Same hour, weekday, month of last year
+            self.df['LAGGED_LY_DW_avg'] = self.df.apply(lambda x: np.mean(self.df[(self.df['YEAR'] == x['YEAR']-1) & (self.df['MONTH'] == x['MONTH']) & (self.df['WEEK_DAY'] == x['WEEK_DAY'])  & (self.df['HOUR'] == x['HOUR']) & (self.df['JF'] == 0)  & (self.df['AftJF'] == 0)]['y']) if (x['YEAR']>min(self.df.YEAR)) else x['y'] , axis=1)
+            # Same hour, holiday of last years
+            holidays = FEHelper.lholidays()
+            for h in set(holidays.holiday):
+                self.df.loc[self.df['holiday']==h, 'LAGGED_LY_DW_avg'] = self.df.loc[self.df['holiday']==h].apply(lambda x : np.mean(self.df[(self.df['holiday']==h) & (self.df['YEAR'] < x['YEAR']) & (self.df['HOUR'] == x['HOUR'])]['y']
+                                                if (x['YEAR']>min(self.df.YEAR)) else x['y']), axis=1)
+    def addTSE(self):
+        """add Time Since Epoch features"""      
+        super(HourFeatureBuilding, self).addTSE()
+        
+            
+    def addHolidays(self):
+        super(HourFeatureBuilding, self).addHolidays()
+        
+        """ 3. Add bef/aft public holidays"""
+        self.df["AftJF"] = self.df["JF"].shift(24)
+        self.df["BefJF"] = self.df["JF"].shift(-24)
+        self.df.ix[self.df['JF']==1,'AftJF']=0
+        self.df.ix[self.df['JF']==1,'BefJF']=0
+        # jour ouvre
+        idx_JF_special = self.df[(self.df.JF==1) &(self.df.WEEK_DAY==4) ].index.values
+        idx_max = max(self.df.index.values)
+        for tmp in idx_JF_special:
+            if tmp+24<=idx_max:
+                self.df['AftJF'].iloc[tmp+24]=0
+            if tmp+72<=idx_max:
+                self.df['AftJF'].iloc[tmp+72]=1
+    
+    def transform(self):
+        return super(HourFeatureBuilding, self).transform()

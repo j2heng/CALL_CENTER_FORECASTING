@@ -2,15 +2,57 @@ import sys
 import pandas as pd
 import numpy as np
 import datetime, time
-from features.TimeFeatureBuilder import DayFeatureBuilding
-from models.train_model import MidTermModel
+from features.TimeFeatureBuilder import DayFeatureBuilding, HourFeatureBuilding
+from models.train_model import MidTermModel, ShortTermModel
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from math import sqrt
 import pickle
 
 
+__names__ = {
+    'midCall': {
+        'inputPath': 'NbcallDay.csv',
+        'featureBuilder': DayFeatureBuilding,
+        'modelBuilder': MidTermModel,
+        'pklPath': "RF-midcall"
 
-def model_retraining():
+    }, 
+    'midCase': {
+        'inputPath': 'NbcaseDay.csv',
+        'featureBuilder': DayFeatureBuilding,
+        'modelBuilder': MidTermModel,
+        'pklPath': "RF-midcase"
+
+    }, 
+    'shortCall': {
+        'inputPath': 'NbcallHour.csv',
+        'featureBuilder': HourFeatureBuilding,
+        'modelBuilder': ShortTermModel,
+        'pklPath': "RF-shortcall"
+
+    }, 
+    'shortCase': {
+        'inputPath': 'NbcaseHour.csv',
+        'featureBuilder': HourFeatureBuilding,
+        'modelBuilder': ShortTermModel,
+        'pklPath': "RF-shortcase"
+    },
+}
+
+def retrain(modelName):
+    """ 
+    Train the model, finding the best hyperparameters
+    To train with different features, modify "input_c" in /models/train_model.py 
+
+    Parameters
+    ----------
+    modelName: {'midCall', 'midCase', 'shortCall', 'shortCase'}
+        The model to retrain
+    """
+    inputPath      = "./data/" + __names__[modelName]['inputPath']
+    featureBuilder = __names__[modelName]['featureBuilder']
+    modelBuilder   = __names__[modelName]['modelBuilder']
+    pklPath        = __names__[modelName]['pklPath']
 
     t_max = datetime.datetime.strptime('2020-01-01', '%Y-%m-%d') 
     t_split = datetime.datetime.strptime('2019-01-01', '%Y-%m-%d') 
@@ -20,19 +62,21 @@ def model_retraining():
     
     # Get Data
     Ephemeride = pd.read_csv("./data/Ephemeride_Paris.csv", sep=';')
-    df =  pd.read_csv("./data/NbcallDay.csv",sep=";") 
+    df =  pd.read_csv(inputPath,sep=";") 
     df['time'] = pd.to_datetime(df['time']) 
     df = df.loc[df['time'] < t_max]
-    df.columns = ['TIME', 'Nb_appels_recus']
+    df.columns = ['TIME', 'y']
 
     # Feature 
-    df = DayFeatureBuilding(df, Ephemeride, '2012-01-01', t_max.strftime("%Y-%m-%d"))
+    df = featureBuilder(df, Ephemeride, '2012-01-01', t_max.strftime("%Y-%m-%d"))
     df = df.transform()
 
 
-
     # Train
-    rg = MidTermModel(df,t_split)
+    rg = modelBuilder(df,t_split)
+    print(rg.__inputcols__)
+    print(rg.__outputcol__)
+
     best_model_ = rg.fit()
     y_pred = rg.predict()
     df_pred = pd.DataFrame({
@@ -42,7 +86,7 @@ def model_retraining():
         'DAY':      df[df['DATE'] >=t_split]['DAY'],
         'WEEK_DAY': df[df['DATE'] >=t_split]['WEEK_DAY'],
         'y_pred':   y_pred,
-        'y_true':   df[df['DATE'] >=t_split]['Nb_appels_recus'],
+        'y_true':   df[df['DATE'] >=t_split]['y'],
         })
     df_pred = df_pred.loc[df_pred.YEAR==2019]
 
@@ -77,14 +121,20 @@ def model_retraining():
     n_samples_leaf =  best_model_.get_params()['min_samples_leaf'] 
     rand_state = best_model_.get_params()['random_state'] 
 
-    model_path = "./midterm_appel/model_retraining_result/pkl/RF-{}-{}-{}-{}-{}-{:.5f}.pkl".format(rand_state,n_estimator,n_depth,n_feature,n_samples_leaf,g_smape)
-    file_path = "./midterm_appel/model_retraining_result/csv/result-RF-{}-{}-{}-{}-{}-{:.5f}.csv".format(rand_state,n_estimator,n_depth,n_feature,n_samples_leaf,g_smape)
+    model_path = "./ccf/model_retraining_result/pkl/{}-{}-{}-{}-{}-{}-{:.5f}.pkl".format(pklPath, rand_state,n_estimator,n_depth,n_feature,n_samples_leaf,g_smape)
+    file_path = "./ccf/model_retraining_result/csv/result-{}-{}-{}-{}-{}-{}-{:.5f}.csv".format(pklPath, rand_state,n_estimator,n_depth,n_feature,n_samples_leaf,g_smape)
     
     pickle.dump(best_model_, open(model_path, 'wb'))
     df_pred.sort_values(by=['DATE']).to_csv(file_path, sep=';', index=False)
 
+    # Write to resume file
+    resume_file_path = "./ccf/model_retraining_result/csv/resume-{}.txt".format(pklPath)
+    inputcols = ','.join(rg.__inputcols__)
+    f = open(resume_file_path, "a")
+    f.write("\n")
+    f.write(inputcols + "\t" + model_path)
+    f.close()
 
 
-
-# if __name__ == "__main__":
-#     model_retraining()
+if __name__ == "__main__":
+    retrain('shortCase')
