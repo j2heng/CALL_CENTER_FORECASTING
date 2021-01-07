@@ -71,7 +71,6 @@ def retrain(modelName):
     df = featureBuilder(df, Ephemeride, '2012-01-01', t_max.strftime("%Y-%m-%d"))
     df = df.transform()
 
-
     # Train
     rg = modelBuilder(df,t_split)
     print(rg.__inputcols__)
@@ -113,6 +112,12 @@ def retrain(modelName):
                 f"\n{'MAE:':<{width[0]}}{mae:>{width[1]}}",    
                 f"\n{'RMSE:':<{width[0]}}{rmse:>{width[1]}}",
             )
+    # print feature importance
+    importances = np.array(best_model_.feature_importances_)
+    features = np.array(rg.__inputcols__)
+    indices = np.argsort(importances)[::-1]
+    for feat, value in zip(features[indices], importances[indices]):
+        print("feature %s:  \t\t\t (%f)" % (feat, value))
 
     # Save to disk
     n_estimator = best_model_.get_params()['n_estimators']
@@ -137,4 +142,5 @@ def retrain(modelName):
 
 
 if __name__ == "__main__":
-    retrain('shortCase')
+    # retrain('shortCase')
+    retrain('shortCall')
